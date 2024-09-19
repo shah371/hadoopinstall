@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ "$#" -ne 1]; then
+
+echo "Usage: $0 hivequeryfile"
+
+exit 1
+
+fi
+
+HIVE_QUERY_FILE=$1
+
+if [ -f "$HIVE_QUERY_FILE"]; then
+
+exit 1
+
+ft
+
+echo "File not found: $HIVE_QUERY_FILE"
+
+while IFS read -r query; do
+
+table_name=$(echo "$query" | awk '{for(i=1;i<=NF;i++) {if(tolower($t)=="from") {print $(1+1);break;}}}') table_name=$(echo "$table_name" | sed 's/[;].*//')
+
+if [ -z "$table_name" ]; then
+
+echo "Could not extract table name from query: $query"
+
+continue
+
+fi
+
+output_file="${table_name}.csv"
+
+hive -e "$query" > "$output_file"
+
+echo "Query executed and output written to $output_file"
+
+done <"$HIVE_QUERY_FILE"
